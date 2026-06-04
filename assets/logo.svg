@@ -1,1 +1,15 @@
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" aria-label="Logo abstrait">
+  <defs>
+    <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B22222"/>
+      <stop offset="100%" stop-color="#C9A86C"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="100" height="100" rx="24" stroke="url(#logo-grad)" stroke-width="1.5" opacity="0.3"/>
+  <path d="M60 20 C70 20 80 30 80 40 C80 50 70 55 60 60 C50 55 40 50 40 40 C40 30 50 20 60 20Z" stroke="url(#logo-grad)" stroke-width="2" fill="none"/>
+  <path d="M60 60 C70 65 80 70 80 80 C80 90 70 100 60 100 C50 100 40 90 40 80 C40 70 50 65 60 60Z" stroke="url(#logo-grad)" stroke-width="2" fill="none"/>
+  <path d="M20 40 C30 35 40 40 40 50" stroke="url(#logo-grad)" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M80 50 C80 40 90 35 100 40" stroke="url(#logo-grad)" stroke-width="2" fill="none" opacity="0.6"/>
+  <circle cx="60" cy="40" r="3" fill="#C9A86C" opacity="0.8"/>
+  <circle cx="60" cy="80" r="3" fill="#C9A86C" opacity="0.8"/>
+</svg>
