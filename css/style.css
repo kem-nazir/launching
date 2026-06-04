@@ -1,1 +1,645 @@
+:root {
+  --bg: #0A0A0A;
+  --bg-alt: #141414;
+  --text: #F0F0F0;
+  --text-secondary: #999999;
+  --accent: #B22222;
+  --accent-gold: #C9A86C;
+  --accent-glow: rgba(178, 34, 34, 0.15);
+  --border: rgba(255, 255, 255, 0.06);
+  --radius: 12px;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --max-width: 720px;
+  --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --fire-orange: #D4380D;
+  --fire-glow: rgba(212, 56, 13, 0.12);
+}
 
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-serif);
+  line-height: 1.7;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(178, 34, 34, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 40% at 30% 20%, rgba(212, 56, 13, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(201, 168, 108, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 30% at 70% 80%, rgba(230, 126, 34, 0.05) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--text);
+}
+
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+button { cursor: pointer; font: inherit; border: none; background: none; }
+
+/* ============================================
+   Container
+   ============================================ */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ============================================
+   Particle Canvas
+   ============================================ */
+#particle-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ============================================
+   Section base
+   ============================================ */
+.section {
+  position: relative;
+  z-index: 1;
+  padding: 100px 0;
+}
+
+.section-title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 60px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+/* ============================================
+   Hero
+   ============================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 40%, rgba(178, 34, 34, 0.08) 0%, rgba(201, 168, 108, 0.03) 40%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  text-align: center;
+  max-width: 800px;
+  width: 100%;
+  transition: transform 0.2s ease-out;
+  will-change: transform;
+}
+
+.jdays {
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+  letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: fadeInUp 1s ease-out 0.15s both;
+}
+
+.jdays-label {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 400;
+  color: var(--text);
+}
+
+.jdays-sep {
+  color: var(--accent);
+  font-size: clamp(1rem, 2vw, 1.4rem);
+}
+
+.jdays-number {
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  color: var(--accent-gold);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.3s ease;
+  text-shadow: 0 0 16px rgba(178, 34, 34, 0.2);
+}
+
+.jdays-number.bump {
+  animation: bumpIn 0.3s ease-out;
+}
+
+@keyframes bumpIn {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.logo-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  cursor: pointer;
+  outline: none;
+  border-radius: 50%;
+  padding: 8px;
+  transition: transform var(--transition);
+}
+
+.logo-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.logo-wrapper:focus-visible {
+  box-shadow: 0 0 0 3px var(--accent);
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+  animation: logoPulse 4s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(178, 34, 34, 0.15)) drop-shadow(0 0 20px rgba(212, 56, 13, 0.08)); }
+  50% { filter: drop-shadow(0 0 20px rgba(178, 34, 34, 0.35)) drop-shadow(0 0 40px rgba(212, 56, 13, 0.15)); }
+}
+
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+  animation: fadeInUp 1s ease-out 0.3s both;
+}
+
+.hero-subtitle {
+  font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+  color: var(--text-secondary);
+  margin-bottom: 60px;
+  animation: fadeInUp 1s ease-out 0.5s both;
+}
+
+/* ============================================
+   Countdown
+   ============================================ */
+.countdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  animation: fadeInUp 1s ease-out 0.7s both;
+}
+
+.countdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.countdown-number {
+  font-family: var(--font-serif);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent-gold);
+  display: inline-block;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 20px rgba(178, 34, 34, 0.25), 0 0 60px rgba(178, 34, 34, 0.1);
+}
+
+#countdown-days {
+  font-size: clamp(3.5rem, 9vw, 7rem);
+}
+
+#countdown-seconds {
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 400;
+}
+
+.countdown-number.flip {
+  animation: flipIn 0.3s ease-out;
+}
+
+@keyframes flipIn {
+  0% { transform: translateY(-6px); opacity: 0.3; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.countdown-label {
+  font-family: var(--font-serif);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-top: 12px;
+  opacity: 0.7;
+}
+
+.countdown-divider {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 300;
+  color: var(--accent);
+  margin: 0 6px;
+  padding-bottom: 30px;
+  opacity: 0.6;
+}
+
+/* ============================================
+   Citation
+   ============================================ */
+.citation-section {
+  padding: 80px 0;
+}
+
+.citation {
+  border-left: 2px solid var(--accent);
+  padding: 16px 0 16px 32px;
+  animation: fadeInUp 1s ease-out both;
+}
+
+.citation p {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.citation strong {
+  color: var(--accent-gold);
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* ============================================
+   Journey
+   ============================================ */
+.journey-section {
+  background: var(--bg-alt);
+  position: relative;
+}
+
+.journey-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(230, 126, 34, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.journey-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.journey-item {
+  text-align: center;
+  padding: 24px;
+  position: relative;
+}
+
+.journey-item::before {
+  content: '◆';
+  display: block;
+  font-size: 0.7rem;
+  color: var(--accent);
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.journey-text {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+  font-style: italic;
+}
+
+/* ============================================
+   Form
+   ============================================ */
+.form-section {
+  background: var(--bg-alt);
+  padding: 100px 0;
+  position: relative;
+}
+
+.form-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(201, 168, 108, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.form-title {
+  margin-bottom: 32px;
+}
+
+.notify-form {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.form-group {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.form-input {
+  flex: 1;
+  padding: 14px 18px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.form-input.error {
+  border-color: #B22222;
+}
+
+.form-btn {
+  padding: 14px 28px;
+  background: var(--accent);
+  color: var(--text);
+  border-radius: var(--radius);
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.form-btn:hover {
+  background: #8B1A1A;
+  transform: translateY(-1px);
+}
+
+.form-btn:active {
+  transform: translateY(0);
+}
+
+.form-message {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  text-align: center;
+  min-height: 1.4em;
+  color: var(--text-secondary);
+}
+
+.form-message.success {
+  color: var(--accent-gold);
+}
+
+.form-message.error {
+  color: var(--accent);
+}
+
+/* ============================================
+   Live Clock
+   ============================================ */
+.live-clock {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+
+.live-clock:hover {
+  opacity: 0.8;
+}
+
+.clock-label,
+.clock-tz {
+  font-family: var(--font-serif);
+}
+
+.clock-time {
+  color: var(--accent-gold);
+}
+
+/* ============================================
+   Toast
+   ============================================ */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 200;
+  background: var(--bg-alt);
+  border: 1px solid var(--accent);
+  padding: 16px 28px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  color: var(--text);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  text-align: center;
+  max-width: 90vw;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+/* ============================================
+   Reveal Overlay
+   ============================================ */
+.reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+.reveal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.reveal-content {
+  text-align: center;
+  position: relative;
+}
+
+.reveal-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(178, 34, 34, 0.15) 0%, transparent 70%);
+  animation: glowExpand 2s ease-out forwards;
+}
+
+@keyframes glowExpand {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.reveal-title {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  position: relative;
+  animation: fadeInUp 1s ease-out 0.5s both;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+/* ============================================
+   Reveal animation class (IntersectionObserver)
+   ============================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================
+   Keyframes
+   ============================================ */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   Reduced motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .logo { animation: none; }
+  .hero-title, .hero-subtitle, .countdown, .citation {
+    animation: none;
+    opacity: 1;
+  }
+  .reveal { opacity: 1; transform: none; }
+  .jdays-number { animation: none; }
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .section { padding: 70px 0; }
+  .section-title { margin-bottom: 40px; }
+  .hero { min-height: 90vh; padding: 30px 20px; }
+  .countdown { gap: 0; flex-wrap: wrap; }
+  .countdown-item { min-width: 60px; }
+  .countdown-divider { margin: 0 4px; padding-bottom: 24px; }
+  .journey-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .journey-item { padding: 16px; }
+  .citation { padding-left: 20px; }
+  .live-clock { bottom: 16px; font-size: 0.65rem; }
+  .form-group { flex-direction: column; }
+  .form-btn { width: 100%; }
+  .toast { bottom: 70px; font-size: 0.85rem; padding: 14px 20px; }
+  .jdays { margin-bottom: 24px; gap: 6px; }
+}
+
+@media (max-width: 480px) {
+  .hero { min-height: 85vh; }
+  .logo { width: 60px; height: 60px; }
+  .logo-wrapper { margin-bottom: 32px; }
+  .hero-subtitle { margin-bottom: 40px; }
+  .countdown-item { min-width: 48px; }
+  .countdown-divider { margin: 0 2px; }
+  .countdown-label { font-size: 0.65rem; }
+  .journey-grid { gap: 12px; }
+  .jdays { gap: 4px; }
+  .jdays-number { font-size: clamp(1.5rem, 8vw, 2.5rem); }
+}
+
+@media (min-width: 1440px) {
+  .hero-title { font-size: 4rem; }
+  .countdown-number { font-size: 6rem; }
+  #countdown-days { font-size: 7rem; }
+  #countdown-seconds { font-size: 4.5rem; }
+}
