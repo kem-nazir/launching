@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coming Soon</title>
+  <meta name="description" content="Quelque chose d'important arrive.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0A0A0A">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+  <div id="reveal-overlay" class="reveal-overlay" aria-hidden="true">
+    <div class="reveal-content">
+      <div class="reveal-glow"></div>
+      <h2 class="reveal-title">C'est l'heure.</h2>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="hero-inner">
+        <div class="logo-wrapper" id="logo-wrapper" role="button" tabindex="0" aria-label="Cliquez pour découvrir">
+          <img src="assets/logo.svg" alt="Logo du projet" class="logo" id="logo" draggable="false">
+        </div>
+        <div class="jdays" id="jdays" aria-label="Jours restants avant le lancement">
+          <span class="jdays-label">J</span>
+          <span class="jdays-sep">&mdash;</span>
+          <span class="jdays-number" id="jdays-number">--</span>
+        </div>
+        <h1 class="hero-title">Quelque chose d'important arrive.</h1>
+        <p class="hero-subtitle">Des mois de travail. Encore quelques jours d'attente.</p>
+        <div class="countdown" id="countdown" role="timer" aria-label="Compte à rebours">
+          <div class="countdown-item">
+            <span class="countdown-number" id="countdown-days">00</span>
+            <span class="countdown-label">Jours</span>
+          </div>
+          <span class="countdown-divider" aria-hidden="true">:</span>
+          <div class="countdown-item">
+            <span class="countdown-number" id="countdown-hours">00</span>
+            <span class="countdown-label">Heures</span>
+          </div>
+          <span class="countdown-divider" aria-hidden="true">:</span>
+          <div class="countdown-item">
+            <span class="countdown-number" id="countdown-minutes">00</span>
+            <span class="countdown-label">Minutes</span>
+          </div>
+          <span class="countdown-divider" aria-hidden="true">:</span>
+          <div class="countdown-item">
+            <span class="countdown-number" id="countdown-seconds">00</span>
+            <span class="countdown-label">Secondes</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section citation-section" id="citation">
+      <div class="container">
+        <blockquote class="citation">
+          <p>&ldquo;Le meilleur moment pour lancer était hier.<br>Le deuxième meilleur moment est le <strong>11 juin 2026 &agrave; 20h00</strong>.&rdquo;</p>
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="section journey-section" id="journey">
+      <div class="container">
+        <h2 class="section-title">Le voyage continue</h2>
+        <div class="journey-grid">
+          <div class="journey-item reveal">
+            <span class="journey-text">Des milliers de lignes de code.</span>
+          </div>
+          <div class="journey-item reveal">
+            <span class="journey-text">Des dizaines de nuits blanches.</span>
+          </div>
+          <div class="journey-item reveal">
+            <span class="journey-text">Pour un travail soigné.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section form-section" id="notification">
+      <div class="container">
+        <h2 class="section-title form-title">Soyez parmi les premiers informés.</h2>
+        <form class="notify-form" id="notify-form" action="https://api.web3forms.com/submit" method="POST" novalidate>
+          <input type="hidden" name="access_key" value="43972ba7-ff7b-4032-acb7-3facc678081c">
+          <input type="hidden" name="subject" value="Nouvelle inscription au lancement">
+          <div class="form-group">
+            <input type="email" id="email" name="email" class="form-input" placeholder="Votre adresse email" required autocomplete="email" aria-label="Adresse email">
+            <button type="submit" class="form-btn">Me prévenir</button>
+          </div>
+          <p class="form-message" id="form-message" role="status"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div class="live-clock" id="live-clock" aria-label="Heure actuelle">
+    <span class="clock-label">Heure actuelle :</span>
+    <span class="clock-time" id="clock-time">--:--:--</span>
+    <span class="clock-tz">(GMT+2)</span>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
