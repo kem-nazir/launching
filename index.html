@@ -2,78 +2,61 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>NEON VOID</title>
-  <meta name="theme-color" content="#050510">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MONOCHROME</title>
+  <meta name="theme-color" content="#000000">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@200;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <div class="grain"></div>
-  <div class="scanlines"></div>
-  <div class="vignette"></div>
-
-  <div class="blobs">
-    <div class="blob" style="background:#00f7ff;top:-5%;left:-5%;width:50vmax;height:50vmax;animation-duration:22s"></div>
-    <div class="blob" style="background:#ff00ff;bottom:-5%;right:-5%;width:45vmax;height:45vmax;animation-duration:18s;animation-delay:-6s"></div>
-    <div class="blob" style="background:#ff0055;top:40%;left:30%;width:35vmax;height:35vmax;animation-duration:26s;animation-delay:-12s"></div>
-    <div class="blob" style="background:#00ff88;top:60%;left:60%;width:30vmax;height:30vmax;animation-duration:20s;animation-delay:-18s"></div>
-    <div class="blob" style="background:#ffaa00;top:20%;left:50%;width:25vmax;height:25vmax;animation-duration:24s;animation-delay:-8s"></div>
-  </div>
-
-  <div class="shapes">
-    <div class="shape" style="width:70px;height:70px;top:12%;left:8%;clip-path:polygon(50% 0%,100% 100%,0% 100%);border-color:#00f7ff;animation-duration:14s"></div>
-    <div class="shape" style="width:45px;height:45px;top:75%;right:12%;clip-path:polygon(50% 0%,100% 100%,0% 100%);border-color:#ff00ff;animation-duration:12s;animation-delay:-4s"></div>
-    <div class="shape" style="width:55px;height:55px;bottom:20%;left:15%;border-radius:50%;border-color:#ff0055;animation-duration:17s;animation-delay:-7s"></div>
-    <div class="shape" style="width:35px;height:35px;top:28%;right:20%;border-radius:50%;border-color:#00ff88;animation-duration:13s;animation-delay:-10s"></div>
-    <div class="shape" style="width:65px;height:65px;bottom:15%;right:30%;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);border-color:#ffaa00;animation-duration:19s;animation-delay:-5s"></div>
-    <div class="shape" style="width:30px;height:30px;top:50%;left:5%;border-color:#00f7ff;animation-duration:11s;animation-delay:-2s"></div>
-    <div class="shape" style="width:40px;height:40px;top:10%;right:35%;clip-path:polygon(50% 0%,100% 100%,0% 100%);border-color:#ff00ff;animation-duration:15s;animation-delay:-9s"></div>
-  </div>
+  <div class="halo"></div>
 
   <canvas id="canvas"></canvas>
 
-  <div class="rings">
-    <div class="ring" id="ring1"></div>
-    <div class="ring" id="ring2"></div>
-    <div class="ring" id="ring3"></div>
-  </div>
-
   <main>
-    <div class="center">
-      <div class="tagline" id="tagline">BIENTÔT</div>
+    <div class="content">
 
-      <div class="countdown" id="countdown">
-        <div class="cd-item">
-          <span class="cd-num" id="cd-days">00</span>
-          <span class="cd-label">J</span>
+      <span class="tag">COMING</span>
+
+      <div class="ring-container">
+        <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+          <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" />
+          <circle class="ring-arc" cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.5" stroke-dasharray="140 425" stroke-linecap="round" transform="rotate(-90 100 100)" />
+        </svg>
+        <div class="countdown">
+          <div class="block">
+            <span class="num" id="cd-days">00</span>
+          </div>
+          <span class="sep">:</span>
+          <div class="block">
+            <span class="num" id="cd-hours">00</span>
+          </div>
+          <span class="sep">:</span>
+          <div class="block">
+            <span class="num" id="cd-mins">00</span>
+          </div>
+          <span class="sep">:</span>
+          <div class="block">
+            <span class="num" id="cd-secs">00</span>
+          </div>
         </div>
-        <span class="cd-sep">:</span>
-        <div class="cd-item">
-          <span class="cd-num" id="cd-hours">00</span>
-          <span class="cd-label">H</span>
-        </div>
-        <span class="cd-sep">:</span>
-        <div class="cd-item">
-          <span class="cd-num" id="cd-mins">00</span>
-          <span class="cd-label">M</span>
-        </div>
-        <span class="cd-sep">:</span>
-        <div class="cd-item">
-          <span class="cd-num" id="cd-secs">00</span>
-          <span class="cd-label">S</span>
+        <div class="labels">
+          <span>Jours</span>
+          <span>Heures</span>
+          <span>Minutes</span>
+          <span>Secondes</span>
         </div>
       </div>
 
-      <div class="date">11 · 06 · 2026</div>
+      <div class="line"></div>
+
+      <span class="date">11.06.2026 — 20h00</span>
+
     </div>
   </main>
-
-  <div class="corner-br"></div>
-  <div class="corner-bl"></div>
 
   <script src="js/main.js"></script>
 </body>
