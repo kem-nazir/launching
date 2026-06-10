@@ -1,299 +1,341 @@
 (function () {
   'use strict';
 
-  const TARGET_DATE = new Date('2026-06-11T18:00:00.000Z');
-  const REDIRECT_URL = '/';
-  const REDIRECT_DELAY = 5000;
-  const CLICK_THRESHOLD = 5;
-
-  let countdownTarget = TARGET_DATE;
-
+  const TARGET = new Date('2026-06-11T18:00:00.000Z');
+  let target = TARGET;
   const params = new URLSearchParams(window.location.search);
-  if (params.has('demo')) {
-    countdownTarget = new Date(Date.now() + 10000);
-  }
+  if (params.has('demo')) target = new Date(Date.now() + 15000);
 
-  const daysEl = document.getElementById('countdown-days');
-  const hoursEl = document.getElementById('countdown-hours');
-  const minutesEl = document.getElementById('countdown-minutes');
-  const secondsEl = document.getElementById('countdown-seconds');
-  const clockTimeEl = document.getElementById('clock-time');
-  const logo = document.getElementById('logo-wrapper');
-  const toast = document.getElementById('toast');
-  const revealOverlay = document.getElementById('reveal-overlay');
-  const form = document.getElementById('notify-form');
-  const emailInput = document.getElementById('email');
-  const formMessage = document.getElementById('form-message');
-  const jdaysNumber = document.getElementById('jdays-number');
-  const canvas = document.getElementById('particle-canvas');
-  const heroInner = document.querySelector('.hero-inner');
+  const daysEl = document.getElementById('cd-days');
+  const hoursEl = document.getElementById('cd-hours');
+  const minsEl = document.getElementById('cd-mins');
+  const secsEl = document.getElementById('cd-secs');
+  const canvas = document.getElementById('canvas');
+  const tagline = document.getElementById('tagline');
 
-  let clickCount = 0;
-  let countdownFinished = false;
-  let audioCtx = null;
+  let mx = -9999, my = -9999;
+  let mouseInside = false;
+  let ctx, W, H;
 
-  function getTimeRemaining() {
-    var now = Date.now();
-    var diff = Math.max(0, countdownTarget.getTime() - now);
+  const NEON = [
+    { r: 0, g: 247, b: 255 },
+    { r: 255, g: 0, b: 255 },
+    { r: 255, g: 0, b: 85 },
+    { r: 0, g: 255, b: 136 },
+    { r: 255, g: 170, b: 0 },
+  ];
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+  function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  // ── Countdown ──
+
+  function getRemaining() {
+    const diff = Math.max(0, target.getTime() - Date.now());
     return {
       total: diff,
       days: Math.floor(diff / 86400000),
       hours: Math.floor((diff % 86400000) / 3600000),
-      minutes: Math.floor((diff % 3600000) / 60000),
-      seconds: Math.floor((diff % 60000) / 1000),
+      mins: Math.floor((diff % 3600000) / 60000),
+      secs: Math.floor((diff % 60000) / 1000),
     };
   }
 
-  function pad(n) {
-    return String(n).padStart(2, '0');
-  }
+  function pad(n) { return String(n).padStart(2, '0'); }
 
-  function updateJdays() {
-    var t = getTimeRemaining();
-    var prev = jdaysNumber.textContent;
-    jdaysNumber.textContent = t.days;
-    if (prev !== jdaysNumber.textContent && prev !== '--') {
-      jdaysNumber.classList.remove('bump');
-      void jdaysNumber.offsetWidth;
-      jdaysNumber.classList.add('bump');
-    }
-  }
-
-  function updateCountdown() {
-    var t = getTimeRemaining();
-    var prevDays = daysEl.textContent;
-    var prevHours = hoursEl.textContent;
-    var prevMins = minutesEl.textContent;
-    var prevSecs = secondsEl.textContent;
-
-    daysEl.textContent = pad(t.days);
-    hoursEl.textContent = pad(t.hours);
-    minutesEl.textContent = pad(t.minutes);
-    secondsEl.textContent = pad(t.seconds);
-
-    if (daysEl.textContent !== prevDays) animateFlip(daysEl);
-    if (hoursEl.textContent !== prevHours) animateFlip(hoursEl);
-    if (minutesEl.textContent !== prevMins) animateFlip(minutesEl);
-    if (secondsEl.textContent !== prevSecs) animateFlip(secondsEl);
-
-    updateJdays();
-
-    if (t.total > 0 && t.total <= 86400000 && !countdownFinished) {
-      playTick();
-    }
-
-    if (t.total <= 0 && !countdownFinished) {
-      countdownFinished = true;
-      triggerReveal();
-    }
-  }
-
-  function animateFlip(el) {
+  function flip(el) {
     el.classList.remove('flip');
     void el.offsetWidth;
     el.classList.add('flip');
   }
 
-  function updateClock() {
-    var now = new Date();
-    var utc = now.getTime() + now.getTimezoneOffset() * 60000;
-    var gmt2 = new Date(utc + 2 * 3600000);
-    clockTimeEl.textContent = pad(gmt2.getHours()) + ':' + pad(gmt2.getMinutes()) + ':' + pad(gmt2.getSeconds());
+  function tick() {
+    const t = getRemaining();
+    const d = pad(t.days), h = pad(t.hours), m = pad(t.mins), s = pad(t.secs);
+
+    if (daysEl.textContent !== d) { daysEl.textContent = d; flip(daysEl); }
+    if (hoursEl.textContent !== h) { hoursEl.textContent = h; flip(hoursEl); }
+    if (minsEl.textContent !== m) { minsEl.textContent = m; flip(minsEl); }
+    if (secsEl.textContent !== s) { secsEl.textContent = s; flip(secsEl); }
   }
 
-  function playTick() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-    try {
-      var osc = audioCtx.createOscillator();
-      var gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.frequency.value = 800;
-      gain.gain.setValueAtTime(0.015, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
-      osc.start(audioCtx.currentTime);
-      osc.stop(audioCtx.currentTime + 0.04);
-    } catch (_) {}
-  }
+  // ── Particles ──
 
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('visible');
-    setTimeout(function () { toast.classList.remove('visible'); }, 4000);
-  }
+  const PARTICLE_COUNT = 180;
+  const CONN_DIST = 110;
+  const TRAIL_LEN = 6;
+  let particles = [];
 
-  function initEasterEgg() {
-    logo.addEventListener('click', function () {
-      clickCount++;
-      if (clickCount >= CLICK_THRESHOLD) {
-        clickCount = 0;
-        showToast("Merci d'\u00eatre aussi curieux. Rendez-vous le 11 juin.");
-      }
-    });
-
-    logo.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        logo.click();
-      }
-    });
-  }
-
-  function initParallax() {
-    document.addEventListener('mousemove', function (e) {
-      if (!heroInner || countdownFinished) return;
-      var x = (e.clientX / window.innerWidth - 0.5) * 4;
-      var y = (e.clientY / window.innerHeight - 0.5) * 4;
-      heroInner.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
-    });
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
   }
 
   function initParticles() {
-    var ctx = canvas.getContext('2d');
-    var w, h;
-    var particles = [];
-    var COUNT = 60;
-
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    }
-
-    window.addEventListener('resize', resize);
-    resize();
-
-    var fireColors = [
-      { r: 178, g: 34, b: 34 },
-      { r: 212, g: 56, b: 13 },
-      { r: 201, g: 168, b: 108 },
-      { r: 230, g: 126, b: 34 },
-    ];
-
-    for (var i = 0; i < COUNT; i++) {
-      var c = fireColors[Math.floor(Math.random() * fireColors.length)];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const c = pick(NEON);
       particles.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.2,
-        r: Math.random() * 2 + 0.5,
-        alpha: Math.random() * 0.4 + 0.08,
+        x: rand(0, W),
+        y: rand(0, H),
+        vx: rand(-0.6, 0.6),
+        vy: rand(-0.6, 0.6),
+        size: rand(1.2, 3.5),
+        alpha: rand(0.2, 0.7),
         color: c,
+        trail: [],
       });
     }
-
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
-      for (var j = 0; j < particles.length; j++) {
-        var p = particles[j];
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = w;
-        if (p.x > w) p.x = 0;
-        if (p.y < 0) p.y = h;
-        if (p.y > h) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(' + p.color.r + ', ' + p.color.g + ', ' + p.color.b + ', ' + p.alpha + ')';
-        ctx.fill();
-      }
-      requestAnimationFrame(draw);
-    }
-
-    draw();
   }
 
-  function initObserver() {
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
+  function spawnBurst(x, y, count) {
+    for (let i = 0; i < count; i++) {
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(1, 5);
+      const c = pick(NEON);
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: rand(1, 3),
+        alpha: rand(0.4, 1),
+        color: c,
+        life: 120,
+        maxLife: 120,
+      });
+    }
+  }
+
+  function burstRandom() {
+    const x = rand(W * 0.1, W * 0.9);
+    const y = rand(H * 0.1, H * 0.9);
+    spawnBurst(x, y, randInt(20, 50));
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Update particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+
+      // Mouse repulsion
+      if (mouseInside) {
+        const dx = p.x - mx;
+        const dy = p.y - my;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 150 && dist > 0) {
+          const force = (150 - dist) / 150 * 2;
+          p.vx += (dx / dist) * force * 0.08;
+          p.vy += (dy / dist) * force * 0.08;
         }
-      });
-    }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
-
-    document.querySelectorAll('.reveal').forEach(function (el) {
-      observer.observe(el);
-    });
-  }
-
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  function initForm() {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var email = emailInput.value.trim();
-      formMessage.className = 'form-message';
-
-      if (!email) {
-        formMessage.textContent = 'Veuillez entrer une adresse email.';
-        formMessage.classList.add('error');
-        emailInput.classList.add('error');
-        return;
       }
 
-      if (!isValidEmail(email)) {
-        formMessage.textContent = 'Adresse email invalide.';
-        formMessage.classList.add('error');
-        emailInput.classList.add('error');
-        return;
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Damping
+      p.vx *= 0.99;
+      p.vy *= 0.99;
+
+      // Speed cap
+      const spd = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+      if (spd > 3) { p.vx = (p.vx / spd) * 3; p.vy = (p.vy / spd) * 3; }
+
+      // Wrap
+      if (p.x < -20) p.x = W + 20;
+      if (p.x > W + 20) p.x = -20;
+      if (p.y < -20) p.y = H + 20;
+      if (p.y > H + 20) p.y = -20;
+
+      // Life
+      if (p.life !== undefined) {
+        p.life--;
+        if (p.life <= 0) { particles.splice(i, 1); continue; }
       }
 
-      emailInput.classList.remove('error');
+      // Store trail
+      if (p.life === undefined && p.trail) {
+        p.trail.push({ x: p.x, y: p.y });
+        if (p.trail.length > TRAIL_LEN) p.trail.shift();
+      }
+    }
 
-      var formData = new FormData(form);
+    // Draw trails
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      if (p.life !== undefined || !p.trail) continue;
+      const tr = p.trail;
+      if (tr.length < 2) continue;
+      for (let j = 1; j < tr.length; j++) {
+        const alpha = (j / tr.length) * p.alpha * 0.3;
+        ctx.beginPath();
+        ctx.moveTo(tr[j - 1].x, tr[j - 1].y);
+        ctx.lineTo(tr[j].x, tr[j].y);
+        ctx.strokeStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${alpha})`;
+        ctx.lineWidth = p.size * 0.5;
+        ctx.stroke();
+      }
+    }
 
-      fetch(form.action, {
-        method: 'POST',
-        body: formData,
-      })
-        .then(function (res) {
-          if (!res.ok) throw new Error('Erreur serveur');
-          formMessage.textContent = 'Merci ! Vous serez inform\u00e9(e) du lancement.';
-          formMessage.classList.add('success');
-          emailInput.value = '';
-        })
-        .catch(function () {
-          formMessage.textContent = 'Merci ! Votre email a bien \u00e9t\u00e9 enregistr\u00e9.';
-          formMessage.classList.add('success');
-          emailInput.value = '';
-        });
+    // Draw particles
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      const lifeAlpha = p.life !== undefined ? (p.life / p.maxLife) : 1;
+      const a = p.alpha * lifeAlpha;
+
+      // Glow
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 6);
+      grad.addColorStop(0, `rgba(${p.color.r},${p.color.g},${p.color.b},${a * 0.3})`);
+      grad.addColorStop(1, `rgba(${p.color.r},${p.color.g},${p.color.b},0)`);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Core
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${a})`;
+      ctx.fill();
+
+      // Bright center
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 0.3, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${a * 0.6})`;
+      ctx.fill();
+    }
+
+    // Draw connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const a = particles[i], b = particles[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < CONN_DIST) {
+          const alpha = (1 - dist / CONN_DIST) * 0.12;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = `rgba(0, 247, 255, ${alpha})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  let burstInterval;
+
+  function startBursts() {
+    burstInterval = setInterval(burstRandom, randInt(2000, 5000));
+  }
+
+  // ── Glitch ──
+
+  let glitchOverlay;
+
+  function createGlitchOverlay() {
+    glitchOverlay = document.createElement('div');
+    glitchOverlay.className = 'glitch-overlay';
+    document.body.appendChild(glitchOverlay);
+  }
+
+  function triggerGlitch() {
+    if (!glitchOverlay) return;
+
+    // Screen flash
+    glitchOverlay.style.opacity = '0';
+    glitchOverlay.style.backgroundColor = 'transparent';
+    void glitchOverlay.offsetWidth;
+    glitchOverlay.style.backgroundColor = `rgba(0,247,255,0.05)`;
+    glitchOverlay.style.opacity = '1';
+    setTimeout(() => {
+      glitchOverlay.style.opacity = '0';
+      glitchOverlay.style.backgroundColor = 'transparent';
+    }, 80);
+
+    // Tagline glitch
+    if (tagline) {
+      const orig = tagline.textContent;
+      const chars = '!@#$%^&*<>?/|\\~';
+      const glitched = orig.split('').map(c =>
+        Math.random() < 0.4 ? chars[randInt(0, chars.length - 1)] : c
+      ).join('');
+      tagline.textContent = glitched;
+      tagline.style.color = pick(['#00f7ff', '#ff00ff', '#ff0055']);
+      setTimeout(() => {
+        tagline.textContent = orig;
+        tagline.style.color = '';
+      }, 120);
+    }
+
+    // Burst
+    spawnBurst(W / 2 + rand(-200, 200), H / 2 + rand(-200, 200), randInt(30, 60));
+
+    // Shake
+    document.body.style.transform = `translate(${rand(-3, 3)}px, ${rand(-2, 2)}px)`;
+    setTimeout(() => { document.body.style.transform = ''; }, 80);
+  }
+
+  function startGlitch() {
+    setInterval(() => {
+      if (Math.random() < 0.3) triggerGlitch();
+    }, randInt(3000, 8000));
+  }
+
+  // ── Mouse ──
+
+  function initMouse() {
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX;
+      my = e.clientY;
+      mouseInside = true;
     });
-
-    emailInput.addEventListener('input', function () {
-      emailInput.classList.remove('error');
-      formMessage.className = 'form-message';
+    document.addEventListener('mouseleave', () => {
+      mouseInside = false;
+    });
+    document.addEventListener('click', e => {
+      spawnBurst(e.clientX, e.clientY, randInt(30, 60));
+      triggerGlitch();
+    });
+    document.addEventListener('touchmove', e => {
+      const t = e.touches[0];
+      mx = t.clientX;
+      my = t.clientY;
+      mouseInside = true;
+    }, { passive: true });
+    document.addEventListener('touchend', () => {
+      mouseInside = false;
     });
   }
 
-  function triggerReveal() {
-    revealOverlay.classList.add('active');
-    revealOverlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-
-    setTimeout(function () {
-      window.location.href = REDIRECT_URL;
-    }, REDIRECT_DELAY);
-  }
+  // ── Init ──
 
   function init() {
-    initParticles();
-    initObserver();
-    initEasterEgg();
-    initParallax();
-    initForm();
+    ctx = canvas.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
 
-    updateCountdown();
-    updateClock();
-    setInterval(updateCountdown, 1000);
-    setInterval(updateClock, 1000);
+    initParticles();
+    initMouse();
+    createGlitchOverlay();
+
+    tick();
+    setInterval(tick, 1000);
+
+    // Animate
+    (function loop() {
+      drawParticles();
+      requestAnimationFrame(loop);
+    })();
+
+    startBursts();
+    startGlitch();
+
+    // Initial burst
+    setTimeout(() => burstRandom(), 500);
+    setTimeout(() => burstRandom(), 1500);
   }
 
   if (document.readyState === 'loading') {
